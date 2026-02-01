@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Porkloop Studios Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#050707;
+  --panel:#0b1110;
+  --neon:#00ffb3;
+  --green:#00ff6a;
+  --yellow:#f5c542;
+  --red:#ff4c4c;
+}
+
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:radial-gradient(circle at top,#0c1412,#050707);
+  color:#eafff6;
+}
+
+section{
+  background:linear-gradient(180deg,#0b1110,#060909);
+  margin:22px;
+  padding:26px;
+  border-radius:20px;
+  box-shadow:0 0 40px rgba(0,255,180,.08);
+}
+
+h1,h2{color:var(--neon)}
+
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:#020404;
+  border:1px solid #00ffb344;
+  border-radius:10px;
+  color:#eafff6;
+}
+
+button{
+  background:var(--neon);
+  color:#002c20;
+  border:none;
+  padding:12px 18px;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+  margin-top:12px;
+}
+button:hover{filter:brightness(1.15)}
+
+.admin-only{display:none}
+
+.status-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+.status{
+  padding:18px;
+  border-radius:16px;
+  text-align:center;
+  font-weight:800;
+}
+.green{border:2px solid var(--green);color:var(--green)}
+.yellow{border:2px solid var(--yellow);color:var(--yellow)}
+.red{border:2px solid var(--red);color:var(--red)}
+
+.nav{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#030707;
+  padding:12px 18px;
+  border-radius:30px;
+  display:flex;
+  gap:14px;
+  box-shadow:0 0 30px rgba(0,255,180,.25);
+  z-index:10;
+}
+
+.hero-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  font-size:2.4rem;
+  font-weight:900;
+}
+
+.hero-icon{
+  width:36px;
+  height:36px;
+  animation:float 4s ease-in-out infinite;
+  transition:transform .3s, filter .3s;
+  filter:drop-shadow(0 0 18px #00ff6a);
+}
+
+.hero-icon:hover{
+  transform:scale(1.15) rotate(-6deg);
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+</style>
+</head>
+
+<body>
+
+<section>
+  <h1 class="hero-title">
+    No spectators. Only creators.
+    <!-- EMBEDDED ICON (CANNOT BREAK) -->
+    <svg id="heroIcon" class="hero-icon" viewBox="0 0 24 24" fill="#00ff6a">
+      <path d="M12 2L2 7l10 5 10-5-10-5zm0 7L2 4v6l10 5 10-5V4l-10 5zm0 6L2 10v6l10 5 10-5v-6l-10 5z"/>
+    </svg>
+  </h1>
+  <button onclick="joinDiscord()">Join Discord</button>
+</section>
+
+<section id="dashboard">
+<h2>Status Dashboard</h2>
+<div class="status-row">
+  <div class="status green" id="studio">Studio: ONLINE</div>
+  <div class="status green" id="apps">Applications: ONLINE</div>
+  <div class="status red" id="projects">Projects: DOWN</div>
+</div>
+</section>
+
+<section class="admin-only">
+<h2>Admin Status Controls</h2>
+
+<h3>Studio</h3>
+<button onclick="setStatus('studio','ONLINE','green')">Online</button>
+<button onclick="setStatus('studio','UNSTABLE','yellow')">Unstable</button>
+<button onclick="setStatus('studio','DOWN','red')">Down</button>
+
+<h3>Applications</h3>
+<button onclick="setStatus('apps','ONLINE','green')">Online</button>
+<button onclick="setStatus('apps','UNSTABLE','yellow')">Unstable</button>
+<button onclick="setStatus('apps','DOWN','red')">Down</button>
+
+<h3>Projects</h3>
+<button onclick="setStatus('projects','ONLINE','green')">Online</button>
+<button onclick="setStatus('projects','UNSTABLE','yellow')">Unstable</button>
+<button onclick="setStatus('projects','DOWN','red')">Down</button>
+</section>
+
+<section id="apply">
+<h2>Apply as Staff</h2>
+
+<input id="discordUser" placeholder="Discord Username (user#0001)">
+<input id="robloxUser" placeholder="Roblox Username">
+
+<select id="role">
+  <option>Renderer</option>
+  <option>Scripter</option>
+  <option>Modeler</option>
+  <option>Staff</option>
+</select>
+
+<textarea id="exp" placeholder="Your experience"></textarea>
+<button onclick="apply()">Submit Application</button>
+</section>
+
+<section id="shop">
+<h2>Shop</h2>
+<button onclick="buy('https://www.roblox.com')">Admin Dashboard – 40 Robux</button>
+<button onclick="buy('https://www.roblox.com')">Priority Applications – 40 Robux</button>
+<button onclick="buy('https://www.roblox.com')">Theme Pack – 40 Robux</button>
+</section>
+
+<section>
+<h2>Admin Login</h2>
+<input id="code" placeholder="Admin Code">
+<button onclick="unlock()">Unlock</button>
+</section>
+
+<div class="nav">
+<button onclick="scrollTo('dashboard')">Dashboard</button>
+<button onclick="scrollTo('apply')">Apply</button>
+<button onclick="scrollTo('shop')">Shop</button>
+</div>
+
+<script>
+const WEBHOOK="YOUR_DISCORD_WEBHOOK";
+const ADMIN_CODE="Daza_porkloop_studios_games";
+
+function joinDiscord(){window.open("https://discord.gg/pgBfN2HDNm","_blank")}
+function scrollTo(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+function buy(url){window.open(url,"_blank")}
+
+function unlock(){
+  const val=document.getElementById("code").value;
+  if(val===ADMIN_CODE){
+    document.querySelectorAll(".admin-only").forEach(e=>e.style.display="block");
+    log("Admin unlocked");
+  }else{
+    log("Invalid admin code attempt");
+  }
+}
+
+function setStatus(id,text,color){
+  const el=document.getElementById(id);
+  el.className="status "+color;
+  el.textContent=el.textContent.split(":")[0]+": "+text;
+
+  const icon=document.getElementById("heroIcon");
+  icon.style.fill =
+    color==="green" ? "#00ff6a" :
+    color==="yellow" ? "#f5c542" :
+    "#ff4c4c";
+
+  icon.style.filter =
+    color==="green" ? "drop-shadow(0 0 18px #00ff6a)" :
+    color==="yellow" ? "drop-shadow(0 0 18px #f5c542)" :
+    "drop-shadow(0 0 18px #ff4c4c)";
+
+  log("Status updated: "+id+" → "+text);
+}
+
+function apply(){
+  const role=document.getElementById("role").value;
+  const adminGranted=role!=="Staff";
+  if(adminGranted){
+    document.querySelectorAll(".admin-only").forEach(e=>e.style.display="block");
+  }
+  log("New application: "+role);
+  alert("Application submitted");
+}
+
+function log(msg){
+  fetch(WEBHOOK,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      embeds:[{title:"Porkloop Dashboard",description:msg,color:65280}]
+    })
+  });
+}
+</script>
+
+</body>
+</html>
